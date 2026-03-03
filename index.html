@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JobPulse – Fresh LinkedIn Job Links</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --linkedin: #0A66C2;
+      --linkedin-dark: #004182;
+      --linkedin-light: #EBF3FB;
+      --text: #1C1C1C;
+      --muted: #5E5E5E;
+      --border: #C9C9C9;
+      --bg: #F3F2EE;
+      --card: #FFFFFF;
+      --success: #057642;
+      --error: #CC1016;
+      --radius: 8px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+    }
+
+    /* ── Header ── */
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    header h1 {
+      font-size: 2.25rem;
+      font-weight: 700;
+      color: var(--linkedin);
+      letter-spacing: -0.5px;
+    }
+
+    header p {
+      margin-top: 0.4rem;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+      padding: 2rem;
+      width: 100%;
+      max-width: 520px;
+    }
+
+    /* ── Form ── */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      margin-bottom: 1.25rem;
+    }
+
+    label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    input[type="text"],
+    select {
+      width: 100%;
+      padding: 0.6rem 0.75rem;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 1rem;
+      color: var(--text);
+      background: #fff;
+      transition: border-color 0.15s;
+      appearance: none;
+    }
+
+    input[type="text"]:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--linkedin);
+      box-shadow: 0 0 0 3px rgba(10,102,194,0.15);
+    }
+
+    input[type="text"].error {
+      border-color: var(--error);
+    }
+
+    .error-msg {
+      font-size: 0.8rem;
+      color: var(--error);
+      display: none;
+    }
+
+    .error-msg.visible {
+      display: block;
+    }
+
+    /* select arrow */
+    .select-wrapper {
+      position: relative;
+    }
+
+    .select-wrapper::after {
+      content: "▾";
+      position: absolute;
+      right: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      padding: 0.65rem 1.25rem;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      text-decoration: none;
+    }
+
+    .btn:active { transform: scale(0.98); }
+
+    .btn-primary {
+      background: var(--linkedin);
+      color: #fff;
+      width: 100%;
+      font-size: 1rem;
+      padding: 0.75rem;
+    }
+
+    .btn-primary:hover { background: var(--linkedin-dark); }
+
+    .btn-secondary {
+      background: var(--linkedin-light);
+      color: var(--linkedin);
+      border: 1.5px solid var(--linkedin);
+      flex: 1;
+    }
+
+    .btn-secondary:hover { background: #daeaf7; }
+
+    .btn-outline {
+      background: #fff;
+      color: var(--text);
+      border: 1.5px solid var(--border);
+      flex: 1;
+    }
+
+    .btn-outline:hover { background: var(--bg); }
+
+    /* ── Output section ── */
+    #output {
+      margin-top: 1.5rem;
+      display: none;
+    }
+
+    #output.visible { display: block; }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin-bottom: 1.25rem;
+    }
+
+    .output-label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+    }
+
+    #url-display {
+      width: 100%;
+      padding: 0.6rem 0.75rem;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 0.8rem;
+      color: var(--muted);
+      background: var(--bg);
+      word-break: break-all;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      resize: none;
+      min-height: 72px;
+    }
+
+    .action-row {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 0.75rem;
+    }
+
+    #copy-feedback {
+      font-size: 0.8rem;
+      color: var(--success);
+      font-weight: 600;
+      margin-top: 0.5rem;
+      min-height: 1rem;
+      text-align: center;
+    }
+
+    /* ── Footer ── */
+    footer {
+      margin-top: 2rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    footer a {
+      color: var(--linkedin);
+      text-decoration: none;
+    }
+
+    footer a:hover { text-decoration: underline; }
+
+    /* ── Responsive ── */
+    @media (max-width: 480px) {
+      header h1 { font-size: 1.75rem; }
+      .card { padding: 1.5rem; }
+      .action-row { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>JobPulse</h1>
+    <p>Find freshly posted LinkedIn jobs instantly</p>
+  </header>
+
+  <main class="card" role="main">
+    <form id="job-form" novalidate>
+
+      <div class="form-group">
+        <label for="job-title">Job Title <span aria-hidden="true">*</span></label>
+        <input
+          type="text"
+          id="job-title"
+          name="job-title"
+          placeholder="e.g. Software Engineer"
+          autocomplete="off"
+          aria-required="true"
+          aria-describedby="title-error"
+        />
+        <span id="title-error" class="error-msg" role="alert">Please enter a job title.</span>
+      </div>
+
+      <div class="form-group">
+        <label for="location">Location <span aria-hidden="true">*</span></label>
+        <input
+          type="text"
+          id="location"
+          name="location"
+          placeholder="e.g. New York, NY or Remote"
+          autocomplete="off"
+          aria-required="true"
+          aria-describedby="location-error"
+          list="location-suggestions"
+        />
+        <datalist id="location-suggestions">
+          <option value="San Francisco, CA">
+          <option value="Seattle, WA">
+          <option value="Austin, TX">
+          <option value="New York, NY">
+          <option value="Boston, MA">
+          <option value="Los Angeles, CA">
+          <option value="Chicago, IL">
+          <option value="Denver, CO">
+          <option value="Remote">
+        </datalist>
+        <span id="location-error" class="error-msg" role="alert">Please enter a location.</span>
+      </div>
+
+      <div class="form-group">
+        <label for="time-range">Time Range</label>
+        <div class="select-wrapper">
+          <select id="time-range" name="time-range" aria-label="Select time range">
+            <option value="3600">Last 1 Hour</option>
+            <option value="10800">Last 3 Hours</option>
+            <option value="21600" selected>Last 6 Hours</option>
+            <option value="43200">Last 12 Hours</option>
+            <option value="86400">Last 24 Hours</option>
+          </select>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary">Search on LinkedIn ↗</button>
+    </form>
+  </main>
+
+  <footer>
+    <p>Built by <a href="https://github.com/bhargavram0211" target="_blank" rel="noopener noreferrer">bhargavram0211</a> · <a href="https://github.com/bhargavram0211/JobPulse" target="_blank" rel="noopener noreferrer">View on GitHub</a></p>
+  </footer>
+
+  <script>
+    const form          = document.getElementById('job-form');
+    const titleInput    = document.getElementById('job-title');
+    const titleError    = document.getElementById('title-error');
+    const locationInput = document.getElementById('location');
+    const locationError = document.getElementById('location-error');
+    const timeSelect    = document.getElementById('time-range');
+
+    function buildUrl(title, location, seconds) {
+      return `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(title)}&location=${encodeURIComponent(location)}&f_TPR=r${seconds}`;
+    }
+
+    function showTitleError(show) {
+      titleInput.classList.toggle('error', show);
+      titleError.classList.toggle('visible', show);
+    }
+
+    function showLocationError(show) {
+      locationInput.classList.toggle('error', show);
+      locationError.classList.toggle('visible', show);
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const title    = titleInput.value.trim();
+      const location = locationInput.value.trim();
+      const seconds  = timeSelect.value;
+
+      let valid = true;
+
+      if (!title) {
+        showTitleError(true);
+        if (valid) titleInput.focus();
+        valid = false;
+      } else {
+        showTitleError(false);
+      }
+
+      if (!location) {
+        showLocationError(true);
+        if (valid) locationInput.focus();
+        valid = false;
+      } else {
+        showLocationError(false);
+      }
+
+      if (!valid) return;
+
+      window.open(buildUrl(title, location, seconds), '_blank', 'noopener,noreferrer');
+    });
+
+    titleInput.addEventListener('input', () => {
+      if (titleInput.value.trim()) showTitleError(false);
+    });
+
+    locationInput.addEventListener('input', () => {
+      if (locationInput.value.trim()) showLocationError(false);
+    });
+  </script>
+
+</body>
+</html>
