@@ -1,0 +1,33 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="100" cy="100" r="95" fill="#0A66C2" opacity="0.1"/>
+  
+  <!-- Pulse line -->
+  <path d="M 30 100 L 60 100 L 70 70 L 80 130 L 90 80 L 100 100 L 170 100" 
+        stroke="#0A66C2" 
+        stroke-width="4" 
+        fill="none" 
+        stroke-linecap="round" 
+        stroke-linejoin="round"/>
+  
+  <!-- Briefcase icon integrated with pulse -->
+  <g transform="translate(130, 85)">
+    <!-- Briefcase body -->
+    <rect x="0" y="5" width="30" height="20" rx="2" fill="#0A66C2"/>
+    <!-- Handle -->
+    <path d="M 8 5 L 8 2 Q 8 0 10 0 L 20 0 Q 22 0 22 2 L 22 5" 
+          stroke="#0A66C2" 
+          stroke-width="2" 
+          fill="none"/>
+    <!-- Lock/clasp -->
+    <rect x="13" y="12" width="4" height="6" fill="white" opacity="0.8"/>
+  </g>
+  
+  <!-- Text: JobPulse -->
+  <text x="100" y="160" 
+        font-family="Arial, sans-serif" 
+        font-size="24" 
+        font-weight="bold" 
+        fill="#0A66C2" 
+        text-anchor="middle">JobPulse</text>
+</svg>
