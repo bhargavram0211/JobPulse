@@ -311,6 +311,20 @@
         </div>
       </div>
 
+      <div class="form-group">
+        <label for="distance">Distance</label>
+        <div class="select-wrapper">
+          <select id="distance" name="distance" aria-label="Select search radius">
+            <option value="0">Exact location only</option>
+            <option value="5">Within 5 miles</option>
+            <option value="10">Within 10 miles</option>
+            <option value="25" selected>Within 25 miles</option>
+            <option value="50">Within 50 miles</option>
+            <option value="100">Within 100 miles</option>
+          </select>
+        </div>
+      </div>
+
       <button type="submit" class="btn btn-primary">Search on LinkedIn ↗</button>
     </form>
   </main>
@@ -320,15 +334,16 @@
   </footer>
 
   <script>
-    const form          = document.getElementById('job-form');
-    const titleInput    = document.getElementById('job-title');
-    const titleError    = document.getElementById('title-error');
-    const locationInput = document.getElementById('location');
-    const locationError = document.getElementById('location-error');
-    const timeSelect    = document.getElementById('time-range');
+    const form            = document.getElementById('job-form');
+    const titleInput      = document.getElementById('job-title');
+    const titleError      = document.getElementById('title-error');
+    const locationInput   = document.getElementById('location');
+    const locationError   = document.getElementById('location-error');
+    const timeSelect      = document.getElementById('time-range');
+    const distanceSelect  = document.getElementById('distance');
 
-    function buildUrl(title, location, seconds) {
-      return `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(title)}&location=${encodeURIComponent(location)}&f_TPR=r${seconds}`;
+    function buildUrl(title, location, seconds, distance) {
+      return `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(title)}&location=${encodeURIComponent(location)}&distance=${distance}&f_TPR=r${seconds}`;
     }
 
     function showTitleError(show) {
@@ -347,6 +362,7 @@
       const title    = titleInput.value.trim();
       const location = locationInput.value.trim();
       const seconds  = timeSelect.value;
+      const distance = distanceSelect.value;
 
       let valid = true;
 
@@ -368,7 +384,7 @@
 
       if (!valid) return;
 
-      window.open(buildUrl(title, location, seconds), '_blank', 'noopener,noreferrer');
+      window.open(buildUrl(title, location, seconds, distance), '_blank', 'noopener,noreferrer');
     });
 
     titleInput.addEventListener('input', () => {
