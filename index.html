@@ -240,6 +240,150 @@
 
     footer a:hover { text-decoration: underline; }
 
+    /* ── Tags / Chips ── */
+    .tags-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      padding: 0.5rem;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      background: #fff;
+      min-height: 42px;
+      cursor: text;
+      transition: border-color 0.15s;
+    }
+
+    .tags-container:focus-within {
+      border-color: var(--linkedin);
+      box-shadow: 0 0 0 3px rgba(10,102,194,0.15);
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      background: var(--linkedin-light);
+      color: var(--linkedin-dark);
+      border: 1px solid rgba(10,102,194,0.25);
+      border-radius: 100px;
+      padding: 0.2rem 0.45rem 0.2rem 0.65rem;
+      font-size: 0.8rem;
+      font-weight: 500;
+      white-space: nowrap;
+      animation: tagIn 0.15s ease;
+    }
+
+    @keyframes tagIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    .tag-remove {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+      border: none;
+      background: transparent;
+      color: var(--linkedin);
+      cursor: pointer;
+      border-radius: 50%;
+      font-size: 1rem;
+      line-height: 1;
+      padding: 0;
+      transition: background 0.15s;
+    }
+
+    .tag-remove:hover {
+      background: rgba(10,102,194,0.15);
+      color: var(--linkedin-dark);
+    }
+
+    .tag-input,
+    .tag-input:focus {
+      border: none;
+      outline: none;
+      box-shadow: none;
+      font-size: 0.85rem;
+      font-family: inherit;
+      color: var(--text);
+      background: transparent;
+      min-width: 120px;
+      width: auto;
+      flex: 1;
+      padding: 0.15rem 0;
+      border-radius: 0;
+    }
+
+    .tag-input::placeholder {
+      color: var(--border);
+    }
+
+    .helper-text {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 0.2rem;
+    }
+
+    /* ── Checkbox ── */
+    .checkbox-group {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+      margin-bottom: 1.25rem;
+      cursor: pointer;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border: 1.5px solid var(--border);
+      border-radius: 4px;
+      background: #fff;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.15s;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .checkbox-group input[type="checkbox"]:checked {
+      background: var(--linkedin);
+      border-color: var(--linkedin);
+    }
+
+    .checkbox-group input[type="checkbox"]:checked::after {
+      content: "✓";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .checkbox-group input[type="checkbox"]:focus {
+      box-shadow: 0 0 0 3px rgba(10,102,194,0.15);
+    }
+
+    .checkbox-label {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text);
+      user-select: none;
+      line-height: 1.4;
+    }
+
+    .checkbox-desc {
+      font-size: 0.75rem;
+      color: var(--muted);
+      font-weight: 400;
+    }
+
     /* ── Responsive ── */
     @media (max-width: 480px) {
       header h1 { font-size: 1.75rem; }
@@ -325,6 +469,29 @@
         </div>
       </div>
 
+      <div class="form-group">
+        <label for="company-input">Exclude Companies</label>
+        <div class="tags-container" id="tags-container">
+          <input
+            type="text"
+            class="tag-input"
+            id="company-input"
+            placeholder="Type & press Enter to add…"
+            autocomplete="off"
+          />
+        </div>
+        <span class="helper-text">Pre-filled with known redirect / clickbait posters. Click ✕ to remove, type to add.</span>
+      </div>
+
+      <label class="checkbox-group">
+        <input type="checkbox" id="verified-only" />
+        <span class="checkbox-label">
+          Only show verified jobs
+          <br />
+          <span class="checkbox-desc">Filter for jobs with LinkedIn verification badges</span>
+        </span>
+      </label>
+
       <button type="submit" class="btn btn-primary">Search on LinkedIn ↗</button>
     </form>
   </main>
@@ -334,18 +501,100 @@
   </footer>
 
   <script>
-    const form            = document.getElementById('job-form');
-    const titleInput      = document.getElementById('job-title');
-    const titleError      = document.getElementById('title-error');
-    const locationInput   = document.getElementById('location');
-    const locationError   = document.getElementById('location-error');
-    const timeSelect      = document.getElementById('time-range');
-    const distanceSelect  = document.getElementById('distance');
+    const form             = document.getElementById('job-form');
+    const titleInput       = document.getElementById('job-title');
+    const titleError       = document.getElementById('title-error');
+    const locationInput    = document.getElementById('location');
+    const locationError    = document.getElementById('location-error');
+    const timeSelect       = document.getElementById('time-range');
+    const distanceSelect   = document.getElementById('distance');
+    const tagsContainer    = document.getElementById('tags-container');
+    const companyInput     = document.getElementById('company-input');
+    const verifiedCheckbox = document.getElementById('verified-only');
 
-    function buildUrl(title, location, seconds, distance) {
-      return `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(title)}&location=${encodeURIComponent(location)}&distance=${distance}&f_TPR=r${seconds}`;
+    const DEFAULT_EXCLUDED = [
+      'RemoteHunter', 'Jobright.ai', 'Sundayy', 'Crossing Hurdles',
+      'hackajob', 'micro1', 'Underdog.io', 'Jobot',
+      'Jobs via eFinancialCareers', 'AgileGrid Solutions', 'Acquire Me', 'Turing'
+    ];
+
+    let excludedCompanies = [...DEFAULT_EXCLUDED];
+
+    /* ── Tag management ── */
+    function renderTags() {
+      tagsContainer.querySelectorAll('.tag').forEach(t => t.remove());
+      excludedCompanies.forEach((name, idx) => {
+        const tag = document.createElement('span');
+        tag.className = 'tag';
+        tag.textContent = name;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'tag-remove';
+        btn.dataset.idx = idx;
+        btn.setAttribute('aria-label', `Remove ${name}`);
+        btn.textContent = '×';
+        tag.appendChild(btn);
+        tagsContainer.insertBefore(tag, companyInput);
+      });
     }
 
+    function addCompany(name) {
+      const trimmed = name.trim();
+      if (!trimmed) return;
+      if (excludedCompanies.some(c => c.toLowerCase() === trimmed.toLowerCase())) return;
+      excludedCompanies.push(trimmed);
+      renderTags();
+    }
+
+    function removeCompany(idx) {
+      excludedCompanies.splice(idx, 1);
+      renderTags();
+    }
+
+    tagsContainer.addEventListener('click', (e) => {
+      const removeBtn = e.target.closest('.tag-remove');
+      if (removeBtn) {
+        removeCompany(Number(removeBtn.dataset.idx));
+        return;
+      }
+      companyInput.focus();
+    });
+
+    companyInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        addCompany(companyInput.value);
+        companyInput.value = '';
+      }
+      if (e.key === 'Backspace' && !companyInput.value && excludedCompanies.length) {
+        excludedCompanies.pop();
+        renderTags();
+      }
+    });
+
+    renderTags();
+
+    /* ── URL builder ── */
+    function buildUrl(title, location, seconds, distance) {
+      let keywords = title;
+      if (excludedCompanies.length) {
+        keywords += ' ' + excludedCompanies.map(c => `NOT "${c}"`).join(' ');
+      }
+
+      let url = 'https://www.linkedin.com/jobs/search/?'
+        + `keywords=${encodeURIComponent(keywords)}`
+        + `&location=${encodeURIComponent(location)}`
+        + `&distance=${distance}`
+        + `&f_TPR=r${seconds}`;
+
+      if (verifiedCheckbox.checked) {
+        url += '&f_VJ=true';
+      }
+
+      return url;
+    }
+
+    /* ── Validation helpers ── */
     function showTitleError(show) {
       titleInput.classList.toggle('error', show);
       titleError.classList.toggle('visible', show);
@@ -356,6 +605,7 @@
       locationError.classList.toggle('visible', show);
     }
 
+    /* ── Form submit ── */
     form.addEventListener('submit', (e) => {
       e.preventDefault();
 
